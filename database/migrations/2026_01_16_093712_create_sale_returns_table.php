@@ -13,6 +13,17 @@ return new class extends Migration
     {
         Schema::create('sale_returns', function (Blueprint $table) {
             $table->id();
+            $table->date('date');
+            $table->foreignId('warehouse_id')->constrained('ware_houses')->onDelete('cascade');
+            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
+            $table->decimal('discount',10,2)->default(0.00);
+            $table->decimal('shipping',10,2)->default(0.00);
+            $table->decimal('grand_total',15,2);
+            $table->decimal('paid_amount',10,2)->default(0);
+            $table->decimal('due_amount',10,2)->default(0);
+            $table->decimal('full_paid')->nullable();
+            $table->text('note')->nullable();
+            $table->enum('status',['Return','Pending','Ordered'])->default('pending');
             $table->timestamps();
         });
     }

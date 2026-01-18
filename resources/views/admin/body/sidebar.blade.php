@@ -179,6 +179,10 @@
                                         <li>
                                             <a href="{{ route('sale.index') }}"class="tp-link">All Sale</a>
                                         </li>
+                                       
+                                         <li>
+                                            <a href="{{ route('sale-return.index') }}"class="tp-link">All Sale Return</a>
+                                        </li>
 
                                     </ul>
                                 </div>

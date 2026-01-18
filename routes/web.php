@@ -11,6 +11,7 @@ use App\Http\Controllers\backend\ProductCategoryController;
 use App\Http\Controllers\backend\ProductController;
 use App\Http\Controllers\backend\PurchaseController;
 use App\Http\Controllers\backend\PurchaseReturnController;
+use App\Http\Controllers\backend\ReturnSaleController;
 use App\Http\Controllers\backend\SaleController;
 use App\Http\Controllers\backend\SupplierController;
 use App\Http\Controllers\backend\WarehouseController;
@@ -181,6 +182,18 @@ Route::middleware('auth')->group(function () {
                 ->name('sale.details');
                   Route::get('/sale/invoice/{id}','Invoice')
                 ->name('sale.invoice');
+            });
+
+
+               //Sale Return Routes//
+            Route::controller(ReturnSaleController::class)->group(function(){
+                Route::get('/sale-return/index','index')
+                ->name('sale-return.index');
+                Route::get('/sale-return/create','create')
+                ->name('sale-return.create');
+                 Route::post('/sale-return/store','store')
+                ->name('sale-return.store');
+
             });
 
 });
