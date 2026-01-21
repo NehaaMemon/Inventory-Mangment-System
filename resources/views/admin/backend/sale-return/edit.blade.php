@@ -5,14 +5,14 @@
    <div class="d-flex flex-column-fluid">
       <div class="container-fluid my-4">
          <div class="d-md-flex align-items-center justify-content-between">
-            <h3 class="mb-0">Edit Sale</h3>
-            <div class="text-end my-2 mt-md-0"><a class="btn btn-outline-primary" href="{{ route('sale.index') }}">Back</a></div>
+            <h3 class="mb-0">Edit Sale Return</h3>
+            <div class="text-end my-2 mt-md-0"><a class="btn btn-outline-primary" href="{{ route('sale-return.index') }}">Back</a></div>
          </div>
 
 
  <div class="card">
     <div class="card-body">
-    <form action="{{ route('sale.update',$sale->id)}}" method="post" enctype="multipart/form-data">
+    <form action="{{ route('sale-return.update',$saleReturn->id)}}" method="post" enctype="multipart/form-data">
        @csrf
 
 @method('put')
@@ -22,13 +22,13 @@
        <div class="row">
           <div class="col-md-4 mb-3">
              <label class="form-label">Date:  <span class="text-danger">*</span></label>
-             <input type="date" name="date" value="<?php echo date('Y-m-d'); ?>" class="form-control" value="{{ $sale->date }}">
+             <input type="date" name="date" value="<?php echo date('Y-m-d'); ?>" class="form-control" value="{{ $saleReturn->date }}">
              @error('date')
              <span class="text-danger">{{ $message }}</span>
              @enderror
           </div>
 
-        <input type="hidden" name="warehouse_id" value="{{ $sale->warehouse_id }}">
+        <input type="hidden" name="warehouse_id" value="{{ $saleReturn->warehouse_id }}">
 
           <div class="col-md-4 mb-3">
                 <div class="form-group w-100">
@@ -36,7 +36,7 @@
                 <select name="warehouse_id" id="warehouse_id" class="form-control form-select" disabled>
     <option value="">Select Warehouse</option>
     @foreach ($warehouses as $item)
-    <option value="{{ $item->id }}" {{ $sale->warehouse_id == $item->id ? 'selected' : '' }} >{{ $item->name }}</option>
+    <option value="{{ $item->id }}" {{ $saleReturn->warehouse_id == $item->id ? 'selected' : '' }} >{{ $item->name }}</option>
     @endforeach
                 </select>
                 <small id="warehouse_error" class="text-danger d-none">Please select the first warehouse.</small>
@@ -49,7 +49,7 @@
                 <select name="customer_id" id="customer_id" class="form-control form-select" >
                    <option value="">Select Customer</option>
                    @foreach ($customers as $item)
-                   <option value="{{ $item->id }}" {{ $sale->customer_id == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
+                   <option value="{{ $item->id }}" {{ $saleReturn->customer_id == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
                    @endforeach
                 </select>
              </div>
@@ -89,7 +89,7 @@
               </tr>
            </thead>
            <tbody id="productBody">
-    @foreach ($sale->saleItems as $item)
+    @foreach ($saleReturn->saleReturnItems as $item)
     <tr data-id={{ $item->id  }}>
 
         <td class="d-flex align-items-center gap-2">
@@ -126,8 +126,8 @@
             name="products[{{ $item->product->id }}][discount]" value="{{ $item->discount }}" style="max-width: 100px;">
     </td>
 
-    <td class="subtotal">{{ number_format($item->total_price,2) }}</td>
-    <input type="hidden" name="products[{{ $item->product->id }}][subtotal]" value="{{ $item->total_price }}">
+    <td class="subtotal">{{ number_format($item->subtotal,2) }}</td>
+    <input type="hidden" name="products[{{ $item->product->id }}][subtotal]" value="{{ $item->subtotal }}">
 
     <td><button type="button" class="btn btn-danger btn-sm remove-item" data-id="{{ $item->id }}"><span class="mdi mdi-delete-circle mdi-18px"></span></button></td>
 
@@ -149,16 +149,16 @@
                 <tbody>
                    <tr>
                       <td class="py-3">Discount</td>
-                      <td class="py-3" id="displayDiscount">TK {{ $sale->discount }}</td>
+                      <td class="py-3" id="displayDiscount">TK {{ $saleReturn->discount }}</td>
                    </tr>
                    <tr>
                       <td class="py-3">Shipping</td>
-                      <td class="py-3" id="shippingDisplay">TK {{ $sale->shipping }}</td>
+                      <td class="py-3" id="shippingDisplay">TK {{ $saleReturn->shipping }}</td>
                    </tr>
                    <tr>
                       <td class="py-3 text-primary">Grand Total</td>
-                      <td class="py-3 text-primary" id="grandTotal">TK {{ $sale->grand_total }}</td>
-                      <input type="hidden" id="grandTotalInput" name="grand_total" value="{{ $sale->grand_total }}">
+                      <td class="py-3 text-primary" id="grandTotal">TK {{ $saleReturn->grand_total }}</td>
+                      <input type="hidden" id="grandTotalInput" name="grand_total" value="{{ $saleReturn->grand_total }}">
 
                    </tr>
 
@@ -167,7 +167,7 @@
                       <td class="py-3">Paid Amount</td>
                       <td class="py-3" id="paidAmount">
                       <input type="text" name="paid_amount"
-                      placeholder="Enter amount paid" class="form-control" value="{{ $sale->paid_amount }}">
+                      placeholder="Enter amount paid" class="form-control" value="{{ $saleReturn->paid_amount }}">
                       </td>
                    </tr>
                    <!-- new add full paid functionality  -->
@@ -179,7 +179,7 @@
                    </tr>
                    <tr >
                       <td class="py-3">Due Amount</td>
-                      <td class="py-3" id="dueAmount">TK {{ $sale->due_amount }}</td>
+                      <td class="py-3" id="dueAmount">TK {{ $saleReturn->due_amount }}</td>
                       <input type="hidden" name="due_amount" >
 
                    </tr>
@@ -197,20 +197,20 @@
       <div class="row">
          <div class="col-md-4">
             <label class="form-label">Discount: </label>
-            <input type="number" id="inputDiscount" name="discount" class="form-control" value="{{ $sale->discount }}">
+            <input type="number" id="inputDiscount" name="discount" class="form-control" value="{{ $saleReturn->discount }}">
          </div>
          <div class="col-md-4">
             <label class="form-label">Shipping: </label>
-            <input type="number" id="inputShipping" name="shipping" class="form-control" value="{{ $sale->shipping }}">
+            <input type="number" id="inputShipping" name="shipping" class="form-control" value="{{ $saleReturn->shipping }}">
          </div>
          <div class="col-md-4">
             <div class="form-group w-100">
                <label class="form-label" for="formBasic">Status : <span class="text-danger">*</span></label>
                <select name="status" id="status" class="form-control form-select">
                   <option value="">Select Status</option>
-                  <option value="Sale" {{ $sale->status == 'Sale' ? 'selected' : '' }} >Sale</option>
-                  <option value="Pending"  {{ $sale->status == 'Pending' ? 'selected' : '' }} >Pending</option>
-                  <option value="Ordered" {{ $sale->status == 'Ordered' ? 'selected' : '' }} >Ordered</option>
+                  <option value="Return" {{ $saleReturn->status == 'Return' ? 'selected' : '' }} >Return</option>
+                  <option value="Pending"  {{ $saleReturn->status == 'Pending' ? 'selected' : '' }} >Pending</option>
+                  <option value="Ordered" {{ $saleReturn->status == 'Ordered' ? 'selected' : '' }} >Ordered</option>
                </select>
                @error('status')
                   <span class="text-danger">{{ $message }}</span>
@@ -221,7 +221,7 @@
 
       <div class="col-md-12 mt-2">
          <label class="form-label">Notes: </label>
-         <textarea class="form-control" name="note" rows="3" placeholder="Enter Notes">{{ $sale->note }}</textarea>
+         <textarea class="form-control" name="note" rows="3" placeholder="Enter Notes">{{ $saleReturn->note }}</textarea>
       </div>
    </div>
 </div>
@@ -230,7 +230,7 @@
      <div class="col-xl-12">
         <div class="d-flex mt-5 justify-content-end">
            <button class="btn btn-primary me-3" type="submit">Save</button>
-           <a class="btn btn-secondary" href="{{ route('sale.index') }}">Cancel</a>
+           <a class="btn btn-secondary" href="{{ route('sale-return.index') }}">Cancel</a>
         </div>
      </div>
   </div>

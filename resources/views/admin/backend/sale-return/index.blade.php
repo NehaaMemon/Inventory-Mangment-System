@@ -75,7 +75,7 @@
 
 
                         <th>
-                        <a title="Edit" href="{{ route('sale.edit',$item->id) }}"
+                        <a title="Edit" href="{{ route('sale-return.edit',$item->id) }}"
                             class="btn btn-warning"><i class="fa-solid fa-pen-to-square">
                                 </i></a>
 

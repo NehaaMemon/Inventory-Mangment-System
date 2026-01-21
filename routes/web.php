@@ -193,6 +193,10 @@ Route::middleware('auth')->group(function () {
                 ->name('sale-return.create');
                  Route::post('/sale-return/store','store')
                 ->name('sale-return.store');
+                  Route::get('/sale-return/edit/{id}','edit')
+                ->name('sale-return.edit');
+                  Route::put('/sale-return/update/{id}','update')
+                ->name('sale-return.update');
 
             });
 
