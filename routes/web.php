@@ -15,6 +15,7 @@ use App\Http\Controllers\backend\PurchaseReturnController;
 use App\Http\Controllers\backend\ReturnSaleController;
 use App\Http\Controllers\backend\SaleController;
 use App\Http\Controllers\backend\SupplierController;
+use App\Http\Controllers\backend\TransferController;
 use App\Http\Controllers\backend\WarehouseController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -213,8 +214,16 @@ Route::middleware('auth')->group(function () {
                 ->name('due.sale_due');
                 Route::get('/due/sale-return_due','dueSaleReturn')
                 ->name('due.sale-return_due');
+            });
 
-
+              //Transfer Routes//
+            Route::controller(TransferController::class)->group(function(){
+                Route::get('/transfer/index','index')
+                ->name('transfer.index');
+                   Route::get('/transfer/create','create')
+                ->name('transfer.create');
+                   Route::post('/transfer/store','store')
+                ->name('transfer.store');
 
             });
 

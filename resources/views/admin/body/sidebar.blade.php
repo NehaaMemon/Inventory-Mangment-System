@@ -192,8 +192,6 @@
                                <li>
                                 <a href="#due" data-bs-toggle="collapse">
                                     <i class="fa-solid fa-bag-shopping"></i>
-
-
                                     <span>Due Manage </span>
                                     <span class="menu-arrow"></span>
 
@@ -202,6 +200,29 @@
                                     <ul class="nav-second-level">
                                         <li>
                                             <a href="{{ route('due.sale_due') }}"class="tp-link">All Sale Due</a>
+                                        </li>
+
+                                         <li>
+                                            <a href="{{ route('due.sale-return_due') }}"class="tp-link">All Sale Return Due</a>
+                                        </li>
+
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                             {{-- Due Set up --}}
+                               <li>
+                                <a href="#transfer" data-bs-toggle="collapse">
+                                    <i class="fa-solid fa-bag-shopping"></i>
+                                    <span>Transfer Setup</span>
+                                    <span class="menu-arrow"></span>
+
+                                </a>
+                                <div class="collapse" id="transfer">
+                                    <ul class="nav-second-level">
+                                        <li>
+                                            <a href="{{ route('transfer.index') }}"class="tp-link">All Tranfer</a>
                                         </li>
 
                                          <li>

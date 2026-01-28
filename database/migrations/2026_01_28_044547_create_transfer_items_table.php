@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('transfer_items', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('transfer_id')->constrained('transfers')->onDelete('cascade');
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $table->decimal('net_unit_cost',15,2);
+            $table->integer('stock');
+            $table->decimal('quantity');
+            $table->decimal('discount',10,2)->default(0.00);
+            $table->decimal('subtotal',15,2);
             $table->timestamps();
         });
     }

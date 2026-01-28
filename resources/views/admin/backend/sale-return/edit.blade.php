@@ -12,7 +12,7 @@
 
  <div class="card">
     <div class="card-body">
-    
+
     @if ($errors->any())
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <strong>Validation Errors:</strong>
@@ -31,8 +31,8 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
-    
-    <form action="{{ route('sale-return.update',$saleReturn->id)}}" method="post" enctype="multipart/form-data" id="saleReturnUpdateForm" novalidate>
+
+    <form action="{{ route('sale-return.update',$saleReturn->id)}}" method="post" enctype="multipart/form-data" id="saleReturnUpdateForm" >
        @csrf
 
 @method('put')
@@ -310,7 +310,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return false;
             };
         });
-        
+
         productBody.querySelectorAll(".decrement-qty").forEach(function(btn) {
             btn.onclick = function(e) {
                 e.preventDefault();
@@ -329,10 +329,10 @@ document.addEventListener("DOMContentLoaded", function () {
             };
         });
     }
-    
+
     // Setup buttons on page load
     setupQtyButtons();
-    
+
     // Also use event delegation as backup
     productBody.addEventListener("click", function(e) {
         if (e.target.classList.contains("increment-qty") || e.target.closest(".increment-qty")) {
@@ -348,7 +348,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             return false;
         }
-        
+
         if (e.target.classList.contains("decrement-qty") || e.target.closest(".decrement-qty")) {
             e.preventDefault();
             e.stopPropagation();
@@ -370,7 +370,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateSubtotal(row) {
         let qtyInput = row.querySelector(".qty-input");
         if (!qtyInput) return;
-        
+
         let qty = parseFloat(qtyInput.value) || 0;
 
         // Ensure quantity is an integer (round it)
@@ -383,7 +383,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let discount = discountInput ? (parseFloat(discountInput.value) || 0) : 0;
 
         let subtotal = (qty * cost) - discount;
-        
+
         // Update display
         let subtotalDisplay = row.querySelector(".subtotal");
         if (subtotalDisplay) {
@@ -538,7 +538,7 @@ document.addEventListener("DOMContentLoaded", function () {
        let form = document.getElementById("saleReturnUpdateForm");
        if (form) {
            console.log("Form submission handler attached");
-           
+
            // Also add click handler on submit button for debugging
            let submitButton = form.querySelector("button[type='submit']");
            if (submitButton) {
@@ -547,14 +547,14 @@ document.addEventListener("DOMContentLoaded", function () {
                    // Don't prevent default - let form submit naturally
                });
            }
-           
+
            form.addEventListener("submit", function (e) {
                console.log("Form submit event triggered");
-               
+
                // Check if products array exists
                let productRows = document.querySelectorAll("#productBody tr");
                console.log("Product rows found: " + productRows.length);
-               
+
                if (productRows.length === 0) {
                    e.preventDefault();
                    alert("Error: No products in the sale return. Please add at least one product.");
@@ -606,7 +606,7 @@ document.addEventListener("DOMContentLoaded", function () {
                    alert("Error: Grand Total must be greater than 0. Please check your products and calculations.");
                    return false;
                }
-               
+
                // Debug: Log form data before submission
                console.log("=== Form Data Before Submission ===");
                let formData = new FormData(form);
@@ -616,7 +616,7 @@ document.addEventListener("DOMContentLoaded", function () {
                    }
                }
                console.log("=== Allowing form to submit ===");
-               
+
                // Allow form to submit - don't prevent default
            });
        } else {
