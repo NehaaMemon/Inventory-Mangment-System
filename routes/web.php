@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\backend\BrandController;
 use App\Http\Controllers\backend\CustomerController;
+use App\Http\Controllers\backend\DueController;
 use App\Http\Controllers\backend\ProductCategoryController;
 use App\Http\Controllers\backend\ProductController;
 use App\Http\Controllers\backend\PurchaseController;
@@ -197,6 +198,23 @@ Route::middleware('auth')->group(function () {
                 ->name('sale-return.edit');
                   Route::put('/sale-return/update/{id}','update')
                 ->name('sale-return.update');
+                  Route::get('/sale-return/detail/{id}','detail')
+                ->name('sale-return.detail');
+                  Route::get('/sale-return/invoice/{id}','invoice')
+                ->name('sale-return.invoice');
+                  Route::delete('/sale-return/delete/{id}','destroy')
+                ->name('sale-return.delete');
+
+            });
+
+              //Due Routes//
+            Route::controller(DueController::class)->group(function(){
+                Route::get('/due/sale_due','dueSale')
+                ->name('due.sale_due');
+                Route::get('/due/sale-return_due','dueSaleReturn')
+                ->name('due.sale-return_due');
+
+
 
             });
 

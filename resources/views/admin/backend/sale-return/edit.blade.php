@@ -12,7 +12,27 @@
 
  <div class="card">
     <div class="card-body">
-    <form action="{{ route('sale-return.update',$saleReturn->id)}}" method="post" enctype="multipart/form-data">
+    
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Validation Errors:</strong>
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    
+    <form action="{{ route('sale-return.update',$saleReturn->id)}}" method="post" enctype="multipart/form-data" id="saleReturnUpdateForm" novalidate>
        @csrf
 
 @method('put')
@@ -24,6 +44,7 @@
              <label class="form-label">Date:  <span class="text-danger">*</span></label>
              <input type="date" name="date" value="<?php echo date('Y-m-d'); ?>" class="form-control" value="{{ $saleReturn->date }}">
              @error('date')
+
              <span class="text-danger">{{ $message }}</span>
              @enderror
           </div>
@@ -114,8 +135,8 @@
     <td>
         <div class="input-group">
             <button class="btn btn-outline-secondary decrement-qty" type="button">−</button>
-            <input type="text" class="form-control text-center qty-input"
-                name="products[{{ $item->product->id }}][quantity]" value="{{ $item->quantity }}" min="1" max="{{ $item->stock }}"
+            <input type="number" step="1" class="form-control text-center qty-input"
+                name="products[{{ $item->product->id }}][quantity]" value="{{ (int)$item->quantity }}" min="1" max="{{ $item->stock }}"
                 data-cost="{{ $item->net_unit_cost }}" style="max-width: 50px;">
             <button class="btn btn-outline-secondary increment-qty" type="button">+</button>
         </div>
@@ -166,21 +187,21 @@
                   <tr >
                       <td class="py-3">Paid Amount</td>
                       <td class="py-3" id="paidAmount">
-                      <input type="text" name="paid_amount"
-                      placeholder="Enter amount paid" class="form-control" value="{{ $saleReturn->paid_amount }}">
+                      <input type="number" step="0.01" name="paid_amount" id="paidAmountInput"
+                      placeholder="Enter amount paid" class="form-control" value="{{ $saleReturn->paid_amount ?? 0 }}">
                       </td>
                    </tr>
                    <!-- new add full paid functionality  -->
-                   <tr class="d-none">
+                   <tr >
                       <td class="py-3">Full Paid</td>
                       <td class="py-3" id="fullPaid">
-                         <input type="text" name="full_paid" id="fullPaidInput">
+                         <input type="number" step="0.01" name="full_paid" class="form-control" id="fullPaidInput" value="{{ $saleReturn->full_paid ?? 0 }}">
                       </td>
                    </tr>
                    <tr >
                       <td class="py-3">Due Amount</td>
-                      <td class="py-3" id="dueAmount">TK {{ $saleReturn->due_amount }}</td>
-                      <input type="hidden" name="due_amount" >
+                      <td class="py-3" id="dueAmount">TK {{ number_format($saleReturn->due_amount, 2) }}</td>
+                      <input type="hidden" name="due_amount" id="dueAmountInput" value="{{ $saleReturn->due_amount }}">
 
                    </tr>
 
@@ -248,46 +269,134 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Update subtotal when quantity or discount changes
     productBody.addEventListener("input", function (e) {
-        if (e.target.classList.contains("qty-input") || e.target.classList.contains("discount-input")) {
+        if (e.target.classList.contains("qty-input")) {
+            // Ensure quantity is always an integer
+            let qtyValue = parseFloat(e.target.value) || 1;
+            qtyValue = Math.max(1, Math.round(qtyValue));
+            e.target.value = qtyValue;
+
+            let row = e.target.closest("tr");
+            updateSubtotal(row);
+        } else if (e.target.classList.contains("discount-input")) {
             let row = e.target.closest("tr");
             updateSubtotal(row);
         }
     });
 
-    // Increment / decrement buttons
-    productBody.querySelectorAll(".increment-qty").forEach(btn => {
-        btn.addEventListener("click", function() {
-            let input = this.closest(".input-group").querySelector(".qty-input");
-            let max = parseInt(input.getAttribute("max"));
-            let val = parseInt(input.value);
-            if (val < max) {
-                input.value = val + 1;
-                updateSubtotal(this.closest("tr"));
-            }
+    // Also handle blur event to ensure integer on focus loss
+    productBody.addEventListener("blur", function (e) {
+        if (e.target.classList.contains("qty-input")) {
+            let qtyValue = parseFloat(e.target.value) || 1;
+            qtyValue = Math.max(1, Math.round(qtyValue));
+            e.target.value = qtyValue;
+            updateSubtotal(e.target.closest("tr"));
+        }
+    }, true);
+
+    // Increment / decrement buttons - Direct attachment + event delegation
+    function setupQtyButtons() {
+        // Direct attachment for existing buttons
+        productBody.querySelectorAll(".increment-qty").forEach(function(btn) {
+            btn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                let input = this.closest(".input-group").querySelector(".qty-input");
+                let row = this.closest("tr");
+                if (input && row) {
+                    let currentVal = Math.round(parseFloat(input.value) || 1);
+                    input.value = currentVal + 1;
+                    updateSubtotal(row);
+                }
+                return false;
+            };
         });
-    });
-    productBody.querySelectorAll(".decrement-qty").forEach(btn => {
-        btn.addEventListener("click", function() {
-            let input = this.closest(".input-group").querySelector(".qty-input");
-            let min = parseInt(input.getAttribute("min"));
-            let val = parseInt(input.value);
-            if (val > min) {
-                input.value = val - 1;
-                updateSubtotal(this.closest("tr"));
-            }
+        
+        productBody.querySelectorAll(".decrement-qty").forEach(function(btn) {
+            btn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                let input = this.closest(".input-group").querySelector(".qty-input");
+                let row = this.closest("tr");
+                if (input && row) {
+                    let min = parseInt(input.getAttribute("min")) || 1;
+                    let currentVal = Math.round(parseFloat(input.value) || 1);
+                    if (currentVal > min) {
+                        input.value = currentVal - 1;
+                        updateSubtotal(row);
+                    }
+                }
+                return false;
+            };
         });
+    }
+    
+    // Setup buttons on page load
+    setupQtyButtons();
+    
+    // Also use event delegation as backup
+    productBody.addEventListener("click", function(e) {
+        if (e.target.classList.contains("increment-qty") || e.target.closest(".increment-qty")) {
+            e.preventDefault();
+            e.stopPropagation();
+            let btn = e.target.classList.contains("increment-qty") ? e.target : e.target.closest(".increment-qty");
+            let input = btn.closest(".input-group").querySelector(".qty-input");
+            let row = btn.closest("tr");
+            if (input && row) {
+                let currentVal = Math.round(parseFloat(input.value) || 1);
+                input.value = currentVal + 1;
+                updateSubtotal(row);
+            }
+            return false;
+        }
+        
+        if (e.target.classList.contains("decrement-qty") || e.target.closest(".decrement-qty")) {
+            e.preventDefault();
+            e.stopPropagation();
+            let btn = e.target.classList.contains("decrement-qty") ? e.target : e.target.closest(".decrement-qty");
+            let input = btn.closest(".input-group").querySelector(".qty-input");
+            let row = btn.closest("tr");
+            if (input && row) {
+                let min = parseInt(input.getAttribute("min")) || 1;
+                let currentVal = Math.round(parseFloat(input.value) || 1);
+                if (currentVal > min) {
+                    input.value = currentVal - 1;
+                    updateSubtotal(row);
+                }
+            }
+            return false;
+        }
     });
 
     function updateSubtotal(row) {
-        let qty = parseFloat(row.querySelector(".qty-input").value) || 0;
-        let cost = parseFloat(row.querySelector(".qty-input").dataset.cost) || 0;
-        let discount = parseFloat(row.querySelector(".discount-input").value) || 0;
+        let qtyInput = row.querySelector(".qty-input");
+        if (!qtyInput) return;
+        
+        let qty = parseFloat(qtyInput.value) || 0;
+
+        // Ensure quantity is an integer (round it)
+        qty = Math.max(1, Math.round(qty));
+        // Update the input value to be integer
+        qtyInput.value = qty;
+
+        let cost = parseFloat(qtyInput.dataset.cost) || 0;
+        let discountInput = row.querySelector(".discount-input");
+        let discount = discountInput ? (parseFloat(discountInput.value) || 0) : 0;
 
         let subtotal = (qty * cost) - discount;
-        row.querySelector(".subtotal").textContent = subtotal.toFixed(2);
+        
+        // Update display
+        let subtotalDisplay = row.querySelector(".subtotal");
+        if (subtotalDisplay) {
+            subtotalDisplay.textContent = subtotal.toFixed(2);
+        }
 
-        // Update hidden input for backend
-        row.querySelector("input[name*='[subtotal]']").value = subtotal.toFixed(2);
+        // Update hidden input for backend - CRITICAL!
+        let subtotalHiddenInput = row.querySelector("input[name*='[subtotal]']");
+        if (subtotalHiddenInput) {
+            subtotalHiddenInput.value = subtotal.toFixed(2);
+        } else {
+            console.error("Subtotal hidden input not found for row!");
+        }
 
         updateGrandTotal();
     }
@@ -296,14 +405,20 @@ document.addEventListener("DOMContentLoaded", function () {
        function updateGrandTotal() {
           let grandTotal = 0;
 
-          // Calculate subtotal sum
+          // Calculate subtotal sum - remove any formatting (commas, spaces, TK, etc.)
           document.querySelectorAll(".subtotal").forEach(function (item) {
-             grandTotal += parseFloat(item.textContent) || 0;
+             let subtotalText = item.textContent || item.innerText || '0';
+             // Remove any non-numeric characters except decimal point
+             subtotalText = subtotalText.replace(/[^\d.-]/g, '');
+             let subtotalValue = parseFloat(subtotalText) || 0;
+             grandTotal += subtotalValue;
           });
 
           // Get discount and shipping values
-          let discount = parseFloat(document.getElementById("inputDiscount").value) || 0;
-          let shipping = parseFloat(document.getElementById("inputShipping").value) || 0;
+          let discountInput = document.getElementById("inputDiscount");
+          let shippingInput = document.getElementById("inputShipping");
+          let discount = discountInput ? (parseFloat(discountInput.value) || 0) : 0;
+          let shipping = shippingInput ? (parseFloat(shippingInput.value) || 0) : 0;
 
           // Apply discount and add shipping cost
           grandTotal = grandTotal - discount + shipping;
@@ -319,10 +434,54 @@ document.addEventListener("DOMContentLoaded", function () {
               grandTotalElement.textContent = `TK ${grandTotal.toFixed(2)}`;
           }
 
-          // Also update the hidden input field
+          // Also update the hidden input field - THIS IS CRITICAL!
           let grandTotalInput = document.getElementById("grandTotalInput");
           if (grandTotalInput) {
               grandTotalInput.value = grandTotal.toFixed(2);
+          }
+
+          // Update due amount when grand total changes
+          updateDueAmount();
+       }
+
+       // Update due amount function
+       function updateDueAmount() {
+          let grandTotalInput = document.querySelector("input[name='grand_total']");
+          let paidAmountInput = document.getElementById("paidAmountInput");
+          let fullPaidInput = document.getElementById("fullPaidInput");
+
+          let grandTotal = parseFloat(grandTotalInput ? grandTotalInput.value : 0) || 0;
+          let paidAmount = parseFloat(paidAmountInput ? paidAmountInput.value : 0) || 0;
+          let fullPaid = parseFloat(fullPaidInput ? fullPaidInput.value : 0) || 0;
+
+          // Validate inputs
+          if (fullPaid < 0) {
+             fullPaid = 0;
+             if (fullPaidInput) fullPaidInput.value = 0;
+          }
+
+          if (paidAmount < 0) {
+             paidAmount = 0;
+             if (paidAmountInput) paidAmountInput.value = 0;
+          }
+
+          // Calculate due amount
+          let dueAmount = grandTotal - (paidAmount + fullPaid);
+
+          if (dueAmount < 0) {
+             dueAmount = 0;
+          }
+
+          // Update due amount display
+          let dueAmountElement = document.getElementById("dueAmount");
+          if (dueAmountElement) {
+             dueAmountElement.textContent = `TK ${dueAmount.toFixed(2)}`;
+          }
+
+          // Update hidden input for backend
+          let dueAmountInput = document.getElementById("dueAmountInput");
+          if (dueAmountInput) {
+             dueAmountInput.value = dueAmount.toFixed(2);
           }
        }
 
@@ -341,12 +500,128 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Remove item
        productBody.addEventListener("click", function (e) {
-            if (e.target.classList.contains("remove-item")) {
+            if (e.target.classList.contains("remove-item") || e.target.closest(".remove-item")) {
                 e.target.closest("tr").remove();
                 updateGrandTotal();
             }
         });
 
+       // Event listeners for paid_amount and full_paid inputs
+       let paidAmountInput = document.getElementById("paidAmountInput");
+       let fullPaidInput = document.getElementById("fullPaidInput");
+
+       if (paidAmountInput) {
+           paidAmountInput.addEventListener("input", function () {
+               updateDueAmount();
+           });
+           paidAmountInput.addEventListener("change", function () {
+               updateDueAmount();
+           });
+       }
+
+       if (fullPaidInput) {
+           fullPaidInput.addEventListener("input", function () {
+               updateDueAmount();
+           });
+           fullPaidInput.addEventListener("change", function () {
+               updateDueAmount();
+           });
+       }
+
+       // Initialize grand total and due amount on page load
+       setTimeout(function() {
+           updateGrandTotal();
+           updateDueAmount();
+       }, 100);
+
+       // Ensure due_amount is updated before form submission
+       let form = document.getElementById("saleReturnUpdateForm");
+       if (form) {
+           console.log("Form submission handler attached");
+           
+           // Also add click handler on submit button for debugging
+           let submitButton = form.querySelector("button[type='submit']");
+           if (submitButton) {
+               submitButton.addEventListener("click", function(e) {
+                   console.log("Submit button clicked!");
+                   // Don't prevent default - let form submit naturally
+               });
+           }
+           
+           form.addEventListener("submit", function (e) {
+               console.log("Form submit event triggered");
+               
+               // Check if products array exists
+               let productRows = document.querySelectorAll("#productBody tr");
+               console.log("Product rows found: " + productRows.length);
+               
+               if (productRows.length === 0) {
+                   e.preventDefault();
+                   alert("Error: No products in the sale return. Please add at least one product.");
+                   return false;
+               }
+
+               // Convert all quantity inputs to proper numeric values
+               document.querySelectorAll(".qty-input").forEach(function (qtyInput) {
+                   let qtyValue = parseFloat(qtyInput.value) || 0;
+                   qtyValue = Math.max(1, Math.round(qtyValue));
+                   qtyInput.value = qtyValue;
+               });
+
+               // CRITICAL: Update all subtotals before submission
+               document.querySelectorAll("#productBody tr").forEach(function(row) {
+                   if (row.querySelector(".qty-input")) {
+                       updateSubtotal(row);
+                   }
+               });
+
+               // Calculate grand total directly from subtotals
+               let calculatedTotal = 0;
+               document.querySelectorAll(".subtotal").forEach(function (item) {
+                   let subtotalText = item.textContent || item.innerText || '0';
+                   subtotalText = subtotalText.replace(/[^\d.-]/g, '');
+                   calculatedTotal += parseFloat(subtotalText) || 0;
+               });
+
+               let discountInput = document.getElementById("inputDiscount");
+               let shippingInput = document.getElementById("inputShipping");
+               let discount = discountInput ? (parseFloat(discountInput.value) || 0) : 0;
+               let shipping = shippingInput ? (parseFloat(shippingInput.value) || 0) : 0;
+
+               calculatedTotal = calculatedTotal - discount + shipping;
+
+               // Update the hidden input
+               let grandTotalInput = document.getElementById("grandTotalInput");
+               if (grandTotalInput) {
+                   grandTotalInput.value = calculatedTotal.toFixed(2);
+                   console.log("Grand Total updated to: " + grandTotalInput.value);
+               }
+
+               // Update due amount
+               updateDueAmount();
+
+               // Validate grand total
+               if (calculatedTotal <= 0) {
+                   e.preventDefault();
+                   alert("Error: Grand Total must be greater than 0. Please check your products and calculations.");
+                   return false;
+               }
+               
+               // Debug: Log form data before submission
+               console.log("=== Form Data Before Submission ===");
+               let formData = new FormData(form);
+               for (let [key, value] of formData.entries()) {
+                   if (key.includes('quantity') || key.includes('subtotal') || key === 'grand_total' || key === 'full_paid' || key === 'paid_amount' || key === 'due_amount') {
+                       console.log(key + ": " + value);
+                   }
+               }
+               console.log("=== Allowing form to submit ===");
+               
+               // Allow form to submit - don't prevent default
+           });
+       } else {
+           console.error("Form element not found!");
+       }
 
 });
 

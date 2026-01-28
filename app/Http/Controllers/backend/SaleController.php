@@ -144,6 +144,7 @@ $sale->update([
     }
 
     public function update(Request $request, string $id)  {
+    // dd($request->all());
         $request->validate([
             'date' => ['required', 'date'],
             'customer_id' => ['required', 'exists:customers,id'],
@@ -152,15 +153,16 @@ $sale->update([
             'discount' => ['nullable','numeric'],
             'shipping' => ['nullable','numeric'],
             'note' =>['nullable','string'],
+            'full_paid' => ['nullable','numeric']
         ]);
 
         $request->validate([
             'products' => ['required', 'array'],
             'products.*.net_unit_cost' => ['required','numeric','min:0'],
-            'products.*.quantity' => ['required','integer','min:1'],
+            'products.*.quantity' => ['required','numeric','min:1'],
             'products.*.discount' => ['nullable','numeric'],
         ]);
-
+// dd($request->all());
     try {
         DB::beginTransaction();
 
@@ -175,6 +177,7 @@ $sale->update([
         $sale->paid_amount = $request->paid_amount ?? 0;
         $sale->due_amount = $request->due_amount ?? 0;
         $sale->full_paid = $request->full_paid ?? 0;
+
 
         // Restore old stock (purane sale items ki quantity wapas add karo)
         $oldItems = SaleItem::where('sale_id', $sale->id)->get();

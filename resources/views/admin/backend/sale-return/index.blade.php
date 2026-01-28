@@ -79,13 +79,13 @@
                             class="btn btn-warning"><i class="fa-solid fa-pen-to-square">
                                 </i></a>
 
-                        <a title="Detail" href="{{ route('sale.details',$item->id) }}"
+                        <a title="Detail" href="{{ route('sale-return.detail',$item->id) }}"
                             class="btn btn-info"><i class="fa-regular fa-eye"></i></a>
 
-                        <a title="PDF Invoice" href="{{ route('sale.invoice',$item->id) }}"
+                        <a title="PDF Invoice" href="{{ route('sale-return.invoice',$item->id) }}"
                              class="btn btn-primary"><i class="fa-solid fa-download"></i></a>
 
-                <form action="{{ route('sale.delete', $item->id) }}" method="POST" class="delete-form" style="display:inline;">
+                <form action="{{ route('sale-return.delete', $item->id) }}" method="POST" class="delete-form" style="display:inline;">
                         @csrf
                         @method('DELETE')
                         <button title="Delete" type="button" class="btn btn-danger delete-btn"><i class="fa-regular fa-trash-can"></i></button>

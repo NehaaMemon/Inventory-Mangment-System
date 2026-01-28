@@ -36,8 +36,8 @@ class WarehouseController extends Controller
     {
          $request->validate([
             'name' => ['required','max:15'],
-            'email' => ['required','email','unique:warehouses','email'],
-            'phone' => ['required','regex:/^\+?\d{7,15}$/'],
+            'email' => ['required','email','unique:ware_houses','email'],
+            'phone' => ['required','max:20'],
             'city' => ['required','max:20'],
         ]);
 
