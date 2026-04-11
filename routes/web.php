@@ -12,7 +12,9 @@ use App\Http\Controllers\backend\ProductCategoryController;
 use App\Http\Controllers\backend\ProductController;
 use App\Http\Controllers\backend\PurchaseController;
 use App\Http\Controllers\backend\PurchaseReturnController;
+use App\Http\Controllers\backend\ReportController;
 use App\Http\Controllers\backend\ReturnSaleController;
+use App\Http\Controllers\backend\RoleController;
 use App\Http\Controllers\backend\SaleController;
 use App\Http\Controllers\backend\SupplierController;
 use App\Http\Controllers\backend\TransferController;
@@ -35,17 +37,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
-        Route::get('/admin/logout', [AdminController::class, 'destroy'])
-        ->name('admin.logout');
-        Route::post('/admin/login', [AdminController::class, 'AdminLogin'])
-        ->name('admin.login');
+require __DIR__ . '/auth.php';
+Route::get('/admin/logout', [AdminController::class, 'destroy'])
+    ->name('admin.logout');
+Route::post('/admin/login', [AdminController::class, 'AdminLogin'])
+    ->name('admin.login');
 
-        //2step verification routes//
-        Route::get('/verify',[AdminController::class,'showVerification'])
-        ->name('custom.verification.Form');
-        Route::post('/verify',[AdminController::class,'verificationVerify'])
-        ->name('custom.verification.verify');
+//2step verification routes//
+Route::get('/verify', [AdminController::class, 'showVerification'])
+    ->name('custom.verification.Form');
+Route::post('/verify', [AdminController::class, 'verificationVerify'])
+    ->name('custom.verification.verify');
 
 
 Route::middleware('guest')->group(function () {
@@ -69,162 +71,219 @@ Route::middleware('guest')->group(function () {
 
 //profile auth route
 Route::middleware('auth')->group(function () {
-          Route::get('/profile', [AdminController::class, 'AdminProfile'])
+    Route::get('/profile', [AdminController::class, 'AdminProfile'])
         ->name('admin.admin_profile');
 
-         Route::post('/profile/store', [AdminController::class, 'ProfileStore'])
+    Route::post('/profile/store', [AdminController::class, 'ProfileStore'])
         ->name('profile.store');
 
-        Route::post('/admin/password/update', [AdminController::class, 'AdminPasswordUpdate'])
+    Route::post('/admin/password/update', [AdminController::class, 'AdminPasswordUpdate'])
         ->name('Admin.password.update');
-
-
 });
 
 Route::middleware('auth')->group(function () {
-         Route::controller(BrandController::class)->group(function(){
-            Route::get('/all/brand','allBrand')->name('all.brand');
-            Route::get('/add/brand','addBrand')->name('add.brand');
-            Route::get('/edit/brand/{id}','editBrand')->name('edit.brand');
-            Route::post('/store/brand','storeBrand')->name('store.brand');
-           Route::put('/update/brand/{id}','updateBrand')->name('update.brand');
-           Route::get('/delete/brand/{id}','deleteBrand')->name('delete.brand');
+    Route::controller(BrandController::class)->group(function () {
+        Route::get('/all/brand', 'allBrand')->name('all.brand');
+        Route::get('/add/brand', 'addBrand')->name('add.brand');
+        Route::get('/edit/brand/{id}', 'editBrand')->name('edit.brand');
+        Route::post('/store/brand', 'storeBrand')->name('store.brand');
+        Route::put('/update/brand/{id}', 'updateBrand')->name('update.brand');
+        Route::get('/delete/brand/{id}', 'deleteBrand')->name('delete.brand');
+    });
+    //WareHouse Routes//
+    Route::controller(WarehouseController::class)->group(function () {
+        Route::get('/all/warehouse', 'allWarehouse')->name('all.warehouse');
+        Route::get('/add/warehouse', 'addWarehouse')->name('add.warehouse');
+        Route::get('/edit/warehouse/{id}', 'edit')->name('edit.warehouse');
+        Route::post('/store/warehouse', 'store')->name('store.warehouse');
+        Route::put('/update/warehouse/{id}', 'update')->name('update.warehouse');
+        Route::get('/delete/warehouse/{id}', 'destroy')->name('delete.warehouse');
+        Route::post('/check-email', 'checkEmail')->name('check.email');
+    });
+
+    //Supplier Routes//
+    Route::controller(SupplierController::class)->group(function () {
+        Route::get('/all/supplier', 'allSupplier')->name('all.supplier');
+        Route::get('/add/supplier', 'addSupplier')->name('add.supplier');
+        Route::get('/edit/supplier/{id}', 'edit')->name('edit.supplier');
+        Route::post('/store/supplier', 'store')->name('store.supplier');
+        Route::put('/update/supplier/{id}', 'update')->name('update.supplier');
+        Route::get('/delete/supplier/{id}', 'destroy')->name('delete.supplier');
+        Route::post('/check-email', 'checkEmail')->name('check.email');
+    });
+
+    //Customer Routes//
+    Route::resource('customers', CustomerController::class);
+    Route::post('/check-email', [CustomerController::class, 'checkEmail'])->name('check.email');
+
+    //Category Routes//
+    Route::resource('category', ProductCategoryController::class);
+
+    //Product Routes//
+    Route::resource('product', ProductController::class);
+
+    //Purchase Routes//
+    Route::controller(PurchaseController::class)->group(function () {
+        Route::get('/purchase/index', 'index')->name('purchase.index');
+        Route::get('/purchase/create', 'create')->name('purchase.create');
+        Route::get('/purchase/product/search', 'purchaseProductSearch')
+            ->name('purchase.product.search');
+
+        Route::post('/purchase/store', 'store')->name('purchase.store');
+        Route::get('/purchase/edit/{id}', 'edit')->name('purchase.edit');
+        Route::put('/purchase/update/{id}', 'update')->name('purchase.update');
+        Route::get('/purchase/show/{id}', 'show')->name('purchase.show');
+        Route::get('/purchase/invoice/{id}', 'invoice')->name('purchase.invoice');
+        Route::delete('/purchase/delete/{id}', 'destroy')->name('purchase.delete');
+    });
+
+    //Return Purchase Routes//
+    Route::controller(PurchaseReturnController::class)->group(function () {
+        Route::get('/returnpurchase/index', 'returnPurchaseIndex')
+            ->name('return-purchase.index');
+        Route::get('/returnpurchase/create', 'returnPurchaseCreate')
+            ->name('return-purchase.create');
+        Route::post('/returnpurchase/store', 'returnPurchaseStore')
+            ->name('return-purchase.store');
+        Route::get('/returnpurchase/create', 'returnPurchaseCreate')
+            ->name('return-purchase.create');
+        Route::get('/returnpurchase/detail/{id}', 'returnPurchaseDetail')
+            ->name('return-purchase.detail');
+        Route::get('/returnpurchase/invoice/{id}', 'returnPurchaseInvoice')
+            ->name('return-purchase.invoice');
+        Route::get('/returnpurchase/edit/{id}', 'returnPurchaseEdit')
+            ->name('return-purchase.edit');
+        Route::put('/returnpurchase/update/{id}', 'returnPurchaseUpdate')
+            ->name('return-purchase.update');
+        Route::delete('/returnpurchase/delete/{id}', 'returnPurchaseDestroy')
+            ->name('return-purchase.delete');
+    });
 
 
-         });
-         //WareHouse Routes//
-           Route::controller(WarehouseController::class)->group(function(){
-            Route::get('/all/warehouse','allWarehouse')->name('all.warehouse');
-            Route::get('/add/warehouse','addWarehouse')->name('add.warehouse');
-            Route::get('/edit/warehouse/{id}','edit')->name('edit.warehouse');
-            Route::post('/store/warehouse','store')->name('store.warehouse');
-            Route::put('/update/warehouse/{id}','update')->name('update.warehouse');
-            Route::get('/delete/warehouse/{id}','destroy')->name('delete.warehouse');
-             Route::post('/check-email', 'checkEmail')->name('check.email');
-
-               });
-
-            //Supplier Routes//
-            Route::controller(SupplierController::class)->group(function(){
-                Route::get('/all/supplier','allSupplier')->name('all.supplier');
-                Route::get('/add/supplier','addSupplier')->name('add.supplier');
-                Route::get('/edit/supplier/{id}','edit')->name('edit.supplier');
-                Route::post('/store/supplier','store')->name('store.supplier');
-                Route::put('/update/supplier/{id}','update')->name('update.supplier');
-                Route::get('/delete/supplier/{id}','destroy')->name('delete.supplier');
-                Route::post('/check-email', 'checkEmail')->name('check.email');
-
-            });
-
-            //Customer Routes//
-            Route::resource('customers', CustomerController::class);
-            Route::post('/check-email', [CustomerController::class, 'checkEmail'])->name('check.email');
-
-             //Category Routes//
-            Route::resource('category', ProductCategoryController::class);
-
-              //Product Routes//
-            Route::resource('product', ProductController::class);
-
-              //Purchase Routes//
-            Route::controller(PurchaseController::class)->group(function(){
-                Route::get('/purchase/index','index')->name('purchase.index');
-                Route::get('/purchase/create','create')->name('purchase.create');
-                Route::get('/purchase/product/search','purchaseProductSearch')
-                ->name('purchase.product.search');
-
-                Route::post('/purchase/store','store')->name('purchase.store');
-                Route::get('/purchase/edit/{id}','edit')->name('purchase.edit');
-                Route::put('/purchase/update/{id}','update')->name('purchase.update');
-                Route::get('/purchase/show/{id}','show')->name('purchase.show');
-                Route::get('/purchase/invoice/{id}','invoice')->name('purchase.invoice');
-                Route::delete('/purchase/delete/{id}','destroy')->name('purchase.delete');
+    //Sale Routes//
+    Route::controller(SaleController::class)->group(function () {
+        Route::get('/sale/index', 'index')
+            ->name('sale.index');
+        Route::get('/sale/create', 'create')
+            ->name('sale.create');
+        Route::post('/sale/store', 'store')
+            ->name('sale.store');
+        Route::get('/sale/edit/{id}', 'edit')
+            ->name('sale.edit');
+        Route::put('/sale/update/{id}', 'update')
+            ->name('sale.update');
+        Route::delete('/sale/delete/{id}', 'Delete')
+            ->name('sale.delete');
+        Route::get('/sale/details/{id}', 'Details')
+            ->name('sale.details');
+        Route::get('/sale/invoice/{id}', 'Invoice')
+            ->name('sale.invoice');
+    });
 
 
-            });
+    //Sale Return Routes//
+    Route::controller(ReturnSaleController::class)->group(function () {
+        Route::get('/sale-return/index', 'index')
+            ->name('sale-return.index');
+        Route::get('/sale-return/create', 'create')
+            ->name('sale-return.create');
+        Route::post('/sale-return/store', 'store')
+            ->name('sale-return.store');
+        Route::get('/sale-return/edit/{id}', 'edit')
+            ->name('sale-return.edit');
+        Route::put('/sale-return/update/{id}', 'update')
+            ->name('sale-return.update');
+        Route::get('/sale-return/detail/{id}', 'detail')
+            ->name('sale-return.detail');
+        Route::get('/sale-return/invoice/{id}', 'invoice')
+            ->name('sale-return.invoice');
+        Route::delete('/sale-return/delete/{id}', 'destroy')
+            ->name('sale-return.delete');
+    });
 
-            //Return Purchase Routes//
-            Route::controller(PurchaseReturnController::class)->group(function(){
-                Route::get('/returnpurchase/index','returnPurchaseIndex')
-                ->name('return-purchase.index');
-                 Route::get('/returnpurchase/create','returnPurchaseCreate')
-                ->name('return-purchase.create');
-                 Route::post('/returnpurchase/store','returnPurchaseStore')
-                ->name('return-purchase.store');
-                  Route::get('/returnpurchase/create','returnPurchaseCreate')
-                ->name('return-purchase.create');
-                  Route::get('/returnpurchase/detail/{id}','returnPurchaseDetail')
-                ->name('return-purchase.detail');
-                 Route::get('/returnpurchase/invoice/{id}','returnPurchaseInvoice')
-                ->name('return-purchase.invoice');
-                Route::get('/returnpurchase/edit/{id}','returnPurchaseEdit')
-                ->name('return-purchase.edit');
-                Route::put('/returnpurchase/update/{id}','returnPurchaseUpdate')
-                ->name('return-purchase.update');
-                 Route::delete('/returnpurchase/delete/{id}','returnPurchaseDestroy')
-                 ->name('return-purchase.delete');
-            });
+    //Due Routes//
+    Route::controller(DueController::class)->group(function () {
+        Route::get('/due/sale_due', 'dueSale')
+            ->name('due.sale_due');
+        Route::get('/due/sale-return_due', 'dueSaleReturn')
+            ->name('due.sale-return_due');
+    });
+
+    //Transfer Routes//
+    Route::controller(TransferController::class)->group(function () {
+        Route::get('/transfer/index', 'index')
+            ->name('transfer.index');
+        Route::get('/transfer/create', 'create')
+            ->name('transfer.create');
+        Route::post('/transfer/store', 'store')
+            ->name('transfer.store');
+        Route::get('/transfer/edit/{id}', 'edit')
+            ->name('transfer.edit');
+        Route::put('/transfer/update/{id}', 'update')
+            ->name('transfer.update');
+        Route::delete('/transfer/delete/{id}', 'destroy')
+            ->name('transfer.delete');
+        Route::get('/transfer/details/{id}', 'details')
+            ->name('transfer.details');
+    });
+
+    // Report routes
+    Route::controller(ReportController::class)->group(function () {
+        Route::get('/report/index', 'index')
+            ->name('report.index');
+        Route::get('/report/purchase-return', 'purchaseReturnReport')
+            ->name('report.purchase-return');
+        Route::get('/report/sale', 'saleReport')
+            ->name('report.sale');
+        Route::get('/report/sale-return', 'saleReturnReport')
+            ->name('report.sale-return');
+        Route::get('/report/stock', 'stockReport')
+            ->name('report.stock');
+        Route::get('/filter-purchases', 'filterPurchases')
+            ->name('filter-purchases');
+        Route::get('/filter-sale', 'filterSales')
+            ->name('filter-sales');
+    });
+
+    Route::controller(RoleController::class)->group(function () {
+        Route::get('/permission/index', 'index')
+            ->name('permission.index');
+        Route::get('/permission/add', 'create')
+            ->name('add.permission');
+        Route::post('/permission/store', 'store')
+            ->name('store.permission');
+        Route::get('/permission/edit/{id}', 'edit')
+            ->name('edit.permission');
+        Route::put('/permission/update/{id}', 'update')
+            ->name('update.permission');
+        Route::get('/permission/delete/{id}', 'destroy')
+            ->name('delete.permission');
+    });
+
+        Route::controller(RoleController::class)->group(function () {
+        Route::get('/role/index', 'roleIndex')
+            ->name('role.index');
+         Route::get('/role/add', 'rolecreate')
+            ->name('add.role');
+        Route::post('/role/store', 'rolestore')
+            ->name('store.role');
+        Route::get('/role/edit/{id}', 'roleedit')
+            ->name('edit.role');
+        Route::put('/role/update/{id}', 'roleupdate')
+            ->name('update.role');
+        Route::get('/role/delete/{id}', 'roledestroy')
+            ->name('delete.role');
+    });
 
 
-            //Sale Routes//
-            Route::controller(SaleController::class)->group(function(){
-                Route::get('/sale/index','index')
-                ->name('sale.index');
-                Route::get('/sale/create','create')
-                ->name('sale.create');
-                Route::post('/sale/store','store')
-                ->name('sale.store');
-                  Route::get('/sale/edit/{id}','edit')
-                ->name('sale.edit');
-                  Route::put('/sale/update/{id}','update')
-                ->name('sale.update');
-                 Route::delete('/sale/delete/{id}','Delete')
-                ->name('sale.delete');
-                  Route::get('/sale/details/{id}','Details')
-                ->name('sale.details');
-                  Route::get('/sale/invoice/{id}','Invoice')
-                ->name('sale.invoice');
-            });
+           Route::controller(RoleController::class)->group(function () {
+        Route::get('/role/all/permission', 'allPermissionToRole')
+            ->name('all.permission.role');
+            Route::get('/role/add/permission', 'addPermissionToRole')
+            ->name('add.permission.role');
+                Route::post('/role/store/permission', 'storePermissionToRole')
+            ->name('store.role.permission');
 
 
-               //Sale Return Routes//
-            Route::controller(ReturnSaleController::class)->group(function(){
-                Route::get('/sale-return/index','index')
-                ->name('sale-return.index');
-                Route::get('/sale-return/create','create')
-                ->name('sale-return.create');
-                 Route::post('/sale-return/store','store')
-                ->name('sale-return.store');
-                  Route::get('/sale-return/edit/{id}','edit')
-                ->name('sale-return.edit');
-                  Route::put('/sale-return/update/{id}','update')
-                ->name('sale-return.update');
-                  Route::get('/sale-return/detail/{id}','detail')
-                ->name('sale-return.detail');
-                  Route::get('/sale-return/invoice/{id}','invoice')
-                ->name('sale-return.invoice');
-                  Route::delete('/sale-return/delete/{id}','destroy')
-                ->name('sale-return.delete');
-
-            });
-
-              //Due Routes//
-            Route::controller(DueController::class)->group(function(){
-                Route::get('/due/sale_due','dueSale')
-                ->name('due.sale_due');
-                Route::get('/due/sale-return_due','dueSaleReturn')
-                ->name('due.sale-return_due');
-            });
-
-              //Transfer Routes//
-            Route::controller(TransferController::class)->group(function(){
-                Route::get('/transfer/index','index')
-                ->name('transfer.index');
-                   Route::get('/transfer/create','create')
-                ->name('transfer.create');
-                   Route::post('/transfer/store','store')
-                ->name('transfer.store');
-
-            });
-
+    });
 });

@@ -211,7 +211,7 @@
                             </li>
 
 
-                             {{-- Due Set up --}}
+                             {{-- Transfer Set up --}}
                                <li>
                                 <a href="#transfer" data-bs-toggle="collapse">
                                     <i class="fa-solid fa-bag-shopping"></i>
@@ -228,6 +228,27 @@
                                          <li>
                                             <a href="{{ route('due.sale-return_due') }}"class="tp-link">All Sale Return Due</a>
                                         </li>
+
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                            {{-- Report setup --}}
+                             <li>
+                                <a href="#report" data-bs-toggle="collapse">
+                                    <i class="fa-solid fa-bag-shopping"></i>
+                                    <span>Report Setup</span>
+                                    <span class="menu-arrow"></span>
+
+                                </a>
+                                <div class="collapse" id="report">
+                                    <ul class="nav-second-level">
+                                        <li>
+                                            <a href="{{ route('report.index') }}"class="tp-link">All Report</a>
+                                        </li>
+
+
 
                                     </ul>
                                 </div>
@@ -251,30 +272,33 @@
 
 
 
-                            <li class="menu-title mt-2">General</li>
+                            <li class="menu-title mt-2">Role & Permission</li>
 
 
 
-                            <li>
-                                <a href="widgets.html" class="tp-link">
+                            {{-- <li>
+                                <a href="{{ route('permission.index') }}" class="tp-link">
                                     <i data-feather="aperture"></i>
-                                    <span> Widgets </span>
+                                    <span> All Permissions </span>
                                 </a>
-                            </li>
+                            </li> --}}
 
                             <li>
                                 <a href="#sidebarAdvancedUI" data-bs-toggle="collapse">
                                     <i data-feather="cpu"></i>
-                                    <span> Extended UI </span>
+                                    <span> Role & Permission </span>
                                     <span class="menu-arrow"></span>
                                 </a>
                                 <div class="collapse" id="sidebarAdvancedUI">
                                     <ul class="nav-second-level">
                                         <li>
-                                            <a href="extended-carousel.html" class="tp-link">Carousel</a>
+                                            <a href="{{ route('role.index') }}" class="tp-link">All Roles</a>
                                         </li>
                                         <li>
-                                            <a href="extended-notifications.html" class="tp-link">Notifications</a>
+                                            <a href="{{ route('permission.index') }}" class="tp-link">All Permissions</a>
+                                        </li>
+                                         <li>
+                                            <a href="{{ route('add.permission.role') }}" class="tp-link">Add Permission to Role</a>
                                         </li>
                                     </ul>
                                 </div>

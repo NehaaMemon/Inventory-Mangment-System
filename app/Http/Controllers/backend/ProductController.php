@@ -10,9 +10,11 @@ use App\Models\Supplier;
 use App\Models\WareHouse;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Intervention\Image\ImageManager;
 
 use Intervention\Image\Drivers\Gd\Driver;
+
 
 class ProductController extends Controller
 {
@@ -153,7 +155,7 @@ class ProductController extends Controller
     {
          $request->validate([
         'name' => ['required', 'string', 'max:255'],
-        'code' => ['required'],
+        'code' => ['required', Rule::unique('products')->ignore($id)],
         'category_id' => ['required', 'exists:product_categories,id'],
         'brand_id' => ['required', 'exists:brands,id'],
         'warehouse_id' => ['required', 'exists:ware_houses,id'],
@@ -167,7 +169,7 @@ class ProductController extends Controller
 
         // MULTIPLE IMAGES
 
-        'image.*' => ['image','mimes:jpg,jpeg,png','max:2048'],
+        'image.*' => ['image','mimes:jpg,jpeg,png','max:5120'],
     ]);
 
     $product = Product::findOrFail($id);
@@ -183,6 +185,7 @@ class ProductController extends Controller
     $product->note = $request->note;
     $product->product_qty = $request->product_qty;
     $product->status = $request->status;
+    $product->save();
 
     // ---------------- PROCESS IMAGES ----------------
     // DELETE REMOVED IMAGES

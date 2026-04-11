@@ -32,7 +32,7 @@
           <div class="col-md-4 mb-3">
                 <div class="form-group w-100">
                 <label class="form-label" for="formBasic">Warehouse : <span class="text-danger">*</span></label>
-                <select name="from_warehouse" id="warehouse_id" class="form-control form-select">
+                <select name="from_warehouse_id" id="warehouse_id" class="form-control form-select">
                       <option value="">Select Warehouse</option>
                       @foreach ($warehouses as $item)
                       <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -45,7 +45,7 @@
             <div class="col-md-4 mb-3">
                 <div class="form-group w-100">
                 <label class="form-label" for="formBasic">Warehouse : <span class="text-danger">*</span></label>
-                <select name="to_warehouse" id="warehouse_id" class="form-control form-select">
+                <select name="to_warehouse_id" id="warehouse_id" class="form-control form-select">
                       <option value="">Select Warehouse</option>
                       @foreach ($warehouses as $item)
                       <option value="{{ $item->id }}">{{ $item->name }}</option>

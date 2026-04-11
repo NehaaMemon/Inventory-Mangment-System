@@ -52,7 +52,7 @@ class WarehouseController extends Controller
             'message' => 'Warehouse Added Successfully',
             'alert-type' => 'success'
 
-        );;
+        );
         return redirect()->route('all.warehouse')->with($notify);
 
     }

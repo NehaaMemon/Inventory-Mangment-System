@@ -47,32 +47,32 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $item->created_at->format('d-m-Y ') }} </td>
-                                            <td>{{ $item->from_warehouse->name }}</td>
-                                            <td> {{ $item->to_warehouse->name }} </td>
+                                            <td>{{ $item->fromwarehouse->name }}</td>
+                                            <td> {{ $item->towarehouse->name }} </td>
                                             <td>
                                                 @foreach ($item->transferItems as $transferItem)
-                                                    {{ $transferItems->product }}
+                                                    {{ $transferItem->product->name }}<br>
                                                 @endforeach
                                             </td>
                                             <td>
                                                 @foreach ($item->transferItems as $transferItem)
-                                                    {{ $transferItem->quantity }}
+                                                  <h4><span class="badge bg-secondary "> {{ (int)$transferItem->quantity }}</span></h4><br>
                                                 @endforeach
                                             </td>
 
 
 
                                             <th>
-                                                <a title="Edit" href="{{ route('sale.edit', $item->id) }}"
+                                                <a title="Edit" href="{{ route('transfer.edit', $item->id) }}"
                                                     class="btn btn-warning"><i class="fa-solid fa-pen-to-square">
                                                     </i></a>
 
-                                                <a title="Detail" href="{{ route('sale.details', $item->id) }}"
+                                                <a title="Detail" href="{{ route('transfer.details', $item->id) }}"
                                                     class="btn btn-info"><i class="fa-regular fa-eye"></i></a>
 
 
 
-                                                <form action="{{ route('sale.delete', $item->id) }}" method="POST"
+                                                <form action="{{ route('transfer.delete', $item->id) }}" method="POST"
                                                     class="delete-form" style="display:inline;">
                                                     @csrf
                                                     @method('DELETE')

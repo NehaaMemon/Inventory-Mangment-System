@@ -6,6 +6,11 @@ document.addEventListener("DOMContentLoaded", function(){
     let warehouseError = document.getElementById("warehouse_error");
     let orderItemsTableBody = document.querySelector("tbody");
 
+    // This script is loaded globally; exit quietly on pages that do not have purchase form elements.
+    if (!productSearchInput || !warehouseDropdown || !productList || !warehouseError || !orderItemsTableBody) {
+        return;
+    }
+
     productSearchInput.addEventListener("keyup", function(){
         let query = this.value;
         let warehouse_id = warehouseDropdown.value;
@@ -198,8 +203,10 @@ function updateGrandTotal() {
     });
 
     // Get discount and shipping values
-    let discount = parseFloat(document.getElementById("inputDiscount").value) || 0;
-    let shipping = parseFloat(document.getElementById("inputShipping").value) || 0;
+    const inputDiscountEl = document.getElementById("inputDiscount");
+    const inputShippingEl = document.getElementById("inputShipping");
+    let discount = parseFloat(inputDiscountEl ? inputDiscountEl.value : 0) || 0;
+    let shipping = parseFloat(inputShippingEl ? inputShippingEl.value : 0) || 0;
 
     // Apply discount and add shipping cost
     grandTotal = grandTotal - discount + shipping;
@@ -226,18 +233,28 @@ function updateGrandTotal() {
 
   function updateDueAmount()
   {
-    let grandTotal = parseFloat(document.querySelector("input[name='grand_total']").value) || 0;
-     let paidAmount = parseFloat(document.querySelector("input[name='paid_amount']").value) || 0;
-      let fullPaid = parseFloat(document.querySelector("input[name='full_paid']").value) || 0;
+    const grandTotalInput = document.querySelector("input[name='grand_total']");
+    const paidAmountInput = document.querySelector("input[name='paid_amount']");
+    const fullPaidInput = document.querySelector("input[name='full_paid']");
+    const dueAmountEl = document.getElementById("dueAmount");
+    const dueAmountInput = document.querySelector("input[name='due_amount']");
+
+    if (!grandTotalInput || !paidAmountInput || !fullPaidInput || !dueAmountEl || !dueAmountInput) {
+        return;
+    }
+
+    let grandTotal = parseFloat(grandTotalInput.value) || 0;
+     let paidAmount = parseFloat(paidAmountInput.value) || 0;
+      let fullPaid = parseFloat(fullPaidInput.value) || 0;
 
       if(fullPaid < 0 ){
         paidAmount = 0;
-        document.querySelector("input[name='paid_amount']").value = 0;
+        paidAmountInput.value = 0;
       }
 
       if(paidAmount < 0){
         paidAmount = 0;
-        document.querySelector("input[name='paid_amount']").value = 0;
+        paidAmountInput.value = 0;
       }
 
     //   let dueAmount = grandTotal - paidAmount;
@@ -248,15 +265,20 @@ function updateGrandTotal() {
         dueAmount = 0;
     }
 
-    document.getElementById("dueAmount").textContent = `TK ${dueAmount.toFixed(2)}`;
-    document.querySelector("input[name='due_amount']").value = dueAmount.toFixed(2);
+    dueAmountEl.textContent = `TK ${dueAmount.toFixed(2)}`;
+    dueAmountInput.value = dueAmount.toFixed(2);
 
 }
     //Even listener and shipping input change
-    document.getElementById("inputShipping").addEventListener("input", updateGrandTotal);
-    document.getElementById("inputDiscount").addEventListener("input", updateGrandTotal);
-    document.querySelector("input[name='paid_amount']").addEventListener("input", updateDueAmount);
-    document.querySelector("input[name='full_paid']").addEventListener("input", updateDueAmount);
+    const inputShippingElement = document.getElementById("inputShipping");
+    const inputDiscountElement = document.getElementById("inputDiscount");
+    const paidAmountElement = document.querySelector("input[name='paid_amount']");
+    const fullPaidElement = document.querySelector("input[name='full_paid']");
+
+    if (inputShippingElement) inputShippingElement.addEventListener("input", updateGrandTotal);
+    if (inputDiscountElement) inputDiscountElement.addEventListener("input", updateGrandTotal);
+    if (paidAmountElement) paidAmountElement.addEventListener("input", updateDueAmount);
+    if (fullPaidElement) fullPaidElement.addEventListener("input", updateDueAmount);
 
 
 
@@ -369,17 +391,27 @@ function updateGrandTotal() {
 });
 
   // Event listeners for discount and shipping input change
-  document.getElementById("inputDiscount").addEventListener("input", function () {
-    let discountValue = parseFloat(this.value) || 0;
-    document.getElementById("displayDiscount").textContent = `TK ${discountValue.toFixed(2)}`;
-    updateGrandTotal();
-  });
+  if (inputDiscountElement) {
+    inputDiscountElement.addEventListener("input", function () {
+      let discountValue = parseFloat(this.value) || 0;
+      const displayDiscount = document.getElementById("displayDiscount");
+      if (displayDiscount) {
+          displayDiscount.textContent = `TK ${discountValue.toFixed(2)}`;
+      }
+      updateGrandTotal();
+    });
+  }
 
-  document.getElementById("inputShipping").addEventListener("input", function () {
-    let shippingValue = parseFloat(this.value) || 0;
-    document.getElementById("shippingDisplay").textContent = `TK ${shippingValue.toFixed(2)}`;
-    updateGrandTotal();
-  });
+  if (inputShippingElement) {
+    inputShippingElement.addEventListener("input", function () {
+      let shippingValue = parseFloat(this.value) || 0;
+      const shippingDisplay = document.getElementById("shippingDisplay");
+      if (shippingDisplay) {
+          shippingDisplay.textContent = `TK ${shippingValue.toFixed(2)}`;
+      }
+      updateGrandTotal();
+    });
+  }
 
 
 
