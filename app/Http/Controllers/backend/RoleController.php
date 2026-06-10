@@ -176,4 +176,144 @@ class RoleController extends Controller
         return view('admin.backend.pages.role-setup.all_permission_role', compact('roles'));
      }
 
+        public function editPermissionToRole($id) {
+            $role = Role::findOrFail($id);
+            $rolepermission = User::getPermissionToRole();
+
+            return view('admin.backend.pages.role-setup.edit_permission_role',
+                compact('role', 'rolepermission'));
+        }
+
+        public function updatePermissionToRole(Request $request, $id) {
+            $request->validate([
+                'permission' => 'nullable|array',
+                'permission.*' => 'exists:permissions,id',
+            ]);
+
+            $role = Role::findOrFail($id);
+            $permissions = Permission::whereIn('id', $request->permission ?? [])
+                ->pluck('name')
+                ->toArray();
+
+            $role->syncPermissions($permissions);
+
+            $notify = array(
+                'message' => 'Permission Updated to Role Successfully',
+                'alert-type' => 'success'
+
+            );
+
+            return redirect()->route('all.permission.role')->with($notify);
+        }
+        public function destroyPermissionToRole($id) {
+            $role = Role::findOrFail($id);
+            $role->permissions()->detach();
+            $role->delete();
+
+            $notify = array(
+                'message' => 'Permission Deleted from Role Successfully',
+                'alert-type' => 'success'
+
+            );
+
+            return redirect()->route('all.permission.role')->with($notify);
+        }
+
+        ////////////////////////////////////Admin User Role Setup Methods //////////////////////////////
+        public function allAdmin() {
+            $allAdmins = User::where('role', 'admin')->latest()->get();         
+            return view('admin.backend.pages.admin-role.index',
+             compact('allAdmins'));   
+        }
+
+        public function addAdmin() {
+                $roles = Role::all();
+            return view('admin.backend.pages.admin-role.create', compact('roles'));
+        }
+
+                public function storeAdmin(Request $request) {
+                    $request->validate([
+                        'name' => 'required',
+                        'email' => 'required|email|unique:users,email',
+                        'password' => 'required|min:6',
+                      
+                    ]);
+    
+                    User::create([
+                        'name' => $request->name,
+                        'email' => $request->email,
+                        'password' => bcrypt($request->password),
+                        'role' => 'admin',
+                    ]);
+                    
+                    if($request->role_id) {
+                        $role = Role::findOrFail($request->role_id);
+                        $user = User::where('email', $request->email)->first();
+                        $user->assignRole($role->name);
+                    }
+                    
+                    $notify = array(
+                        'message' => 'Admin User Added Successfully',
+                        'alert-type' => 'success'
+        
+                    );
+        
+                    return redirect()->route('admin.index')->with($notify);
+                }
+
+            public function destroyAdmin($id) {
+                User::findOrFail($id)->delete();
+    
+                $notify = array(
+                    'message' => 'Admin User Deleted Successfully',
+                    'alert-type' => 'success'
+    
+                );
+    
+                return redirect()->route('admin.index')->with($notify);
+            }
+    
+            public function editAdmin($id) {
+                $admin = User::findOrFail($id);
+                $roles = Role::all();
+                return view('admin.backend.pages.admin-role.edit', compact('admin', 'roles'));
+            }
+    
+            public function updateAdmin(Request $request, $id) {
+                $request->validate([
+                    'name' => 'required',
+                    'email' => 'required|email|unique:users,email,' . $id,
+                    'password' => 'nullable|min:6',
+                    'role_id' => 'nullable|exists:roles,id',
+                ]);
+
+                $user = User::findOrFail($id);
+                $data = [
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'role' => 'admin',
+                ];
+
+                if ($request->filled('password')) {
+                    $data['password'] = bcrypt($request->password);
+                }
+
+                $user->update($data);
+
+                if ($request->role_id) {
+                    $role = Role::findOrFail($request->role_id);
+                    $user->syncRoles($role->name);
+                } else {
+                    $user->syncRoles([]);
+                }
+    
+                $notify = array(
+                    'message' => 'Admin User Updated Successfully',
+                    'alert-type' => 'success'
+    
+                );
+    
+                return redirect()->route('admin.index')->with($notify);
+            }
+
     }

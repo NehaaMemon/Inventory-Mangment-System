@@ -1,4 +1,3 @@
-
 @extends('admin.admin_master')
 @section('admin')
 
@@ -9,13 +8,13 @@
 
             <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">
                 <div class="flex-grow-1">
-                    <h4 class="fs-18 fw-semibold m-0">All Permission To Roles</h4>
+                    <h4 class="fs-18 fw-semibold m-0">All Admin Users</h4>
                 </div>
 
                 <div class="text-end">
                     <ol class="breadcrumb m-0 py-0">
-                        <a href="{{ route('add.permission.role') }}" class="btn btn-secondary">
-                            Add Permission To Role
+                        <a href="{{ route('add.admin') }}" class="btn btn-secondary">
+                            Add Admin User
                         </a>
 
                     </ol>
@@ -36,24 +35,27 @@
                                 <thead>
                                 <tr>
                                     <th>Id</th>
-                                    <th>Role Name</th>
-                                    <th>Permission Name</th>
+                                    <th>Admin Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($roles as $item)
+                                    @foreach ($allAdmins as $item)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ ucfirst($item->name) }}</td>
-                                        <td>
-                                            @foreach ($item->permissions as $permission)
-                                                <span class="badge bg-primary">{{ ucfirst($permission->name) }}</span>
-                                            @endforeach
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('edit.permission.role',$item->id) }}" class="btn btn-success">Edit</a>
-                                            <a href="{{ route('delete.permission.role',$item->id) }}" class="btn btn-danger" id="delete">Delete</a>
+                                        <td>{{ ucfirst($item->name) }}</td>                                       
+                                        <td>{{ $item->email }}</td>
+                                         <td>
+                                            @foreach ($item->roles as $role)
+                                            <span class="badge badge-pill badge-soft-primary font-size-11">{{ $role->name }}</span>
+                                             @endforeach
+                                         </td>
+                                        
+                                            <td>
+                                            <a href="{{ route('edit.admin',$item->id) }}" class="btn btn-success">Edit</a>
+                                            <a href="{{ route('delete.admin',$item->id) }}" class="btn btn-danger" id="delete">Delete</a>
                                         </td>
                                     </tr>
 

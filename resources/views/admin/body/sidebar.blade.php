@@ -42,6 +42,7 @@
 
                             <li class="menu-title">Pages</li>
 
+                            @can('Brand All')
                             <li>
                                 <a href="#sidebarAuth" data-bs-toggle="collapse">
                                     {{-- <i data-feather="users"></i> --}}
@@ -61,6 +62,7 @@
                                     </ul>
                                 </div>
                             </li>
+                            @endcan
 
                                 <li>
                                 <a href="#sidebarBaseui" data-bs-toggle="collapse">
@@ -143,7 +145,7 @@
 
                               <li>
                                 <a href="#purchase" data-bs-toggle="collapse">
-                                    <i class="fa-solid fa-bag-shopping"></i>
+                                    <span class="mdi mdi-cart" style="font-size: 20px; font-weight: bold;"></span>
 
 
                                     <span>Purchase Manage </span>
@@ -167,8 +169,7 @@
                                      {{-- Sale --}}
                                <li>
                                 <a href="#sale" data-bs-toggle="collapse">
-                                    <i class="fa-solid fa-bag-shopping"></i>
-
+                                <span class="mdi mdi-sale"  style="font-size: 20px; font-weight: bold;"></span>
 
                                     <span>Sale Manage </span>
                                     <span class="menu-arrow"></span>
@@ -191,7 +192,7 @@
                            {{-- Due Set up --}}
                                <li>
                                 <a href="#due" data-bs-toggle="collapse">
-                                    <i class="fa-solid fa-bag-shopping"></i>
+                                    <span class="mdi mdi-wallet" style="font-size: 20px; font-weight: bold;"></span>
                                     <span>Due Manage </span>
                                     <span class="menu-arrow"></span>
 
@@ -214,7 +215,7 @@
                              {{-- Transfer Set up --}}
                                <li>
                                 <a href="#transfer" data-bs-toggle="collapse">
-                                    <i class="fa-solid fa-bag-shopping"></i>
+                                    <span class="mdi mdi-transfer"  style="font-size: 20px; font-weight: bold;"></span>
                                     <span>Transfer Setup</span>
                                     <span class="menu-arrow"></span>
 
@@ -237,7 +238,7 @@
                             {{-- Report setup --}}
                              <li>
                                 <a href="#report" data-bs-toggle="collapse">
-                                    <i class="fa-solid fa-bag-shopping"></i>
+                                    <span class="mdi mdi-chart-line"  style="font-size: 20px; font-weight: bold;"></span>
                                     <span>Report Setup</span>
                                     <span class="menu-arrow"></span>
 
@@ -254,7 +255,7 @@
                                 </div>
                             </li>
 
-
+{{-- 
                             <li>
                                 <a href="#sidebarError" data-bs-toggle="collapse">
                                     <i data-feather="alert-octagon"></i>
@@ -268,7 +269,7 @@
                                         </li>
                                     </ul>
                                 </div>
-                            </li>
+                            </li> --}}
 
 
 
@@ -304,7 +305,23 @@
                                 </div>
                             </li>
 
-                            <li>
+                              <li>
+                                <a href="#adminsetup" data-bs-toggle="collapse">
+                                    <i data-feather="cpu"></i>
+                                    <span> Manage Admin </span>
+                                    <span class="menu-arrow"></span>
+                                </a>
+                                <div class="collapse" id="adminsetup">
+                                    <ul class="nav-second-level">
+                                        <li>
+                                            <a href="{{ route('admin.index') }}" class="tp-link">All Admin</a>
+                                        </li>
+
+                                    </ul>
+                                </div>
+                            </li>
+
+                            {{-- <li>
                                 <a href="#sidebarIcons" data-bs-toggle="collapse">
                                     <i data-feather="award"></i>
                                     <span> Icons </span>
@@ -320,7 +337,7 @@
                                         </li>
                                     </ul>
                                 </div>
-                            </li>
+                            </li> --}}
 
                         </ul>
 

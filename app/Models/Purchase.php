@@ -18,7 +18,7 @@ class Purchase extends Model
     ];
 
     public function warehouse(){
-        return $this->belongsTo(Warehouse::class);
+        return $this->belongsTo(WareHouse::class);
     }
     public function supplier(){
         return $this->belongsTo(Supplier::class);

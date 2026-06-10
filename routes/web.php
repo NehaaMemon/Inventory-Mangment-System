@@ -20,6 +20,17 @@ use App\Http\Controllers\backend\SupplierController;
 use App\Http\Controllers\backend\TransferController;
 use App\Http\Controllers\backend\WarehouseController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Customer;
+use App\Models\Product;
+use App\Models\Purchase;
+use App\Models\PurchaseReturn;
+use App\Models\Sale;
+use App\Models\SaleItem;
+use App\Models\SaleReturn;
+use App\Models\Supplier;
+use App\Models\WareHouse;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -28,13 +39,74 @@ Route::get('/', function () {
 
 
 Route::get('/dashboard', function () {
-    return view('admin.index');
+    $startMonth = now()->startOfMonth()->subMonths(11);
+
+    $monthKeys = collect(range(0, 11))->map(fn ($month) => $startMonth->copy()->addMonths($month)->format('Y-m'));
+    $monthLabels = $monthKeys->map(fn ($month) => Carbon::createFromFormat('Y-m', $month)->format('M Y'));
+
+    $monthlySales = Sale::selectRaw("DATE_FORMAT(date, '%Y-%m') as month, SUM(grand_total) as total")
+        ->where('date', '>=', $startMonth->toDateString())
+        ->groupBy('month')
+        ->pluck('total', 'month');
+
+    $monthlySaleReturns = SaleReturn::selectRaw("DATE_FORMAT(date, '%Y-%m') as month, SUM(grand_total) as total")
+        ->where('date', '>=', $startMonth->toDateString())
+        ->groupBy('month')
+        ->pluck('total', 'month');
+
+    $dashboard = [
+        'sales_count' => Sale::count(),
+        'sales_total' => Sale::sum('grand_total'),
+        'sale_returns_count' => SaleReturn::count(),
+        'sale_returns_total' => SaleReturn::sum('grand_total'),
+        'purchases_count' => Purchase::count(),
+        'purchases_total' => Purchase::sum('grand_total'),
+        'purchase_returns_count' => PurchaseReturn::count(),
+        'purchase_returns_total' => PurchaseReturn::sum('grand_total'),
+        'sale_due_total' => Sale::sum('due_amount'),
+        'sale_due_count' => Sale::where('due_amount', '>', 0)->count(),
+        'sale_return_due_total' => SaleReturn::sum('due_amount'),
+        'suppliers_count' => Supplier::count(),
+        'customers_count' => Customer::count(),
+        'products_count' => Product::count(),
+        'stock_units' => Product::sum('product_qty'),
+        'warehouses_count' => WareHouse::count(),
+        'low_stock_count' => Product::whereColumn('product_qty', '<=', 'stock_alert')->count(),
+    ];
+
+    $chart = [
+        'months' => $monthLabels->values(),
+        'sales' => $monthKeys->map(fn ($month) => (float) ($monthlySales[$month] ?? 0))->values(),
+        'sale_returns' => $monthKeys->map(fn ($month) => (float) ($monthlySaleReturns[$month] ?? 0))->values(),
+    ];
+
+    $topProducts = SaleItem::select('product_id', DB::raw('SUM(quantity) as sold_qty'), DB::raw('SUM(subtotal) as sold_amount'))
+        ->with('product:id,name,code,product_qty')
+        ->groupBy('product_id')
+        ->orderByDesc('sold_qty')
+        ->take(5)
+        ->get();
+
+    $lowStockProducts = Product::with(['category:id,category_name', 'warehouse:id,name'])
+        ->select('id', 'name', 'code', 'category_id', 'warehouse_id', 'product_qty', 'stock_alert')
+        ->whereColumn('product_qty', '<=', 'stock_alert')
+        ->orderBy('product_qty')
+        ->take(5)
+        ->get();
+
+    $latestSales = Sale::with(['customer:id,name', 'warehouse:id,name'])
+        ->latest()
+        ->take(5)
+        ->get();
+
+    return view('admin.index', compact('dashboard', 'chart', 'topProducts', 'lowStockProducts', 'latestSales'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
 });
 
 require __DIR__ . '/auth.php';
@@ -283,7 +355,28 @@ Route::middleware('auth')->group(function () {
             ->name('add.permission.role');
                 Route::post('/role/store/permission', 'storePermissionToRole')
             ->name('store.role.permission');
+           Route::get('/role/edit/permission/{id}', 'editPermissionToRole')
+            ->name('edit.permission.role');
+           Route::put('/role/update/permission/{id}', 'updatePermissionToRole')
+            ->name('update.permission.role');
+                Route::get('/role/delete/permission/{id}', 'destroyPermissionToRole')
+            ->name('delete.permission.role');
+    });
 
 
+     Route::controller(RoleController::class)->group(function () {
+        Route::get('/all/admin', 'allAdmin')
+            ->name('admin.index');
+        Route::get('/add/admin', 'addAdmin')
+            ->name('add.admin');
+        Route::post('/store/admin', 'storeAdmin')
+            ->name('store.admin');
+        Route::get('/edit/admin/{id}', 'editAdmin')
+            ->name('edit.admin');
+        Route::put('/update/admin/{id}', 'updateAdmin')
+            ->name('update.admin');
+        Route::get('/delete/admin/{id}', 'destroyAdmin')
+            ->name('delete.admin');
+          
     });
 });

@@ -7,6 +7,7 @@ use App\Models\Brand;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -15,6 +16,11 @@ class BrandController extends Controller
 {
     function allBrand(): View
     {
+        if (Gate::denies('Brand All')) {
+            abort(Response::HTTP_FORBIDDEN, 'Unauthorized');
+        }
+
+
         $brand = Brand::latest()->get();
         return view('admin.backend.brand.all_brand', compact('brand'));
     }

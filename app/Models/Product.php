@@ -22,7 +22,7 @@ class Product extends Model
 
     public function warehouse()
     {
-        return $this->belongsTo(Warehouse::class, 'warehouse_id');
+        return $this->belongsTo(WareHouse::class, 'warehouse_id');
     }
 
     public function supplier()
@@ -35,4 +35,3 @@ class Product extends Model
         return $this->hasMany(ProductImage::class);
     }
 }
-
