@@ -46,7 +46,7 @@
 
                                     <div class="pt-0">
 
-                                        <form method="POST" action="{{ route('login') }}">
+                                        <form method="POST" action="{{ route('admin.login') }}">
                                             @csrf
 
                                             <div class="form-group mb-3">
