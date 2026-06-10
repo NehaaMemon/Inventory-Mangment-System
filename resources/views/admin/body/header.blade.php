@@ -23,7 +23,7 @@
                                 </button>
                             </li>
 
-                            <li class="dropdown notification-list topbar-dropdown">
+                            {{-- <li class="dropdown notification-list topbar-dropdown">
                                 <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                                     <i data-feather="bell" class="noti-icon"></i>
                                     <span class="badge bg-danger rounded-circle noti-icon-badge">9</span>
@@ -92,7 +92,7 @@
                                     </a>
 
                                 </div>
-                            </li>
+                            </li> --}}
 
                             @php
                                 $id = Auth::user()->id;
